@@ -55,8 +55,8 @@ class CartManager {
             return "El producto adicional se ha agregado al Carrito";
         }
 
-        cartById.products.push({ id: productById.id, cantidad: 1 })
-        let cartsConcat = [cartById, ...cartFilter]
+        cartsById.products.push({ id: productById.id, cantidad: 1 })
+        let cartsConcat = [cartsById, ...cartFilter]
         await this.writeCarts(cartsConcat);
         return "El producto se ha agregado al Carrito"
     }
