@@ -8,7 +8,7 @@ import __dirname from "./utils.js";
 import ProductManager from "./controllers/ProductManager.js";
 import handlebars from "express-handlebars"
 import viewsRouter from "./routes/views.router.js";
-import {Server} from "socket.io";
+import { Server } from "socket.io";
 
 
 const app = express();
@@ -18,36 +18,38 @@ const PORT = 8080;
 
 httpServer.listen(PORT, () => {
     console.log(`Servidor Express Puerto: ${PORT}`);
-  });
+});
+
+const product = new ProductManager();
 
 
 //Handlebars
 app.engine("handlebars", handlebars.engine());
-app.set("views",__dirname+ "/views");
+app.set("views", __dirname + "/views");
 app.set("view engine", "handlebars")
 app.use(express.static(__dirname + "/public"));
 app.use("/", viewsRouter);
 
 io.on("connection", (socket) => {
-console.log("Nuevo cliente conectado")
-socket.on("mensaje", (data) => {
-    console.log(data);
-})
+    console.log("Nuevo cliente conectado")
+    socket.on("mensaje", (data) => {
+        console.log(data);
+    })
 })
 
 app.get("/", async (req, res) => {
     let allProducts = await product.getProducts()
     res.render("home", {
         title: "Express Avanzado | Handlebars",
-        products : allProducts
+        products: allProducts
     })
 })
 
 app.get("/:id", async (req, res) => {
-    let prod = await ProductRo.getProductsById(req.params.id)
+    let prod = await product.getProductsById(req.params.id)
     res.render("prod", {
         title: "Express Avanzado | Handlebars",
-        products : prod
+        products: prod
     })
 })
 

@@ -1,6 +1,9 @@
-   <div>
-todo listo para trabajar con websocket
-</div>
+    <h1>Lista de Productos </h1>
+{{#each products}}
+<h2>{{this.name}} </h2>
+<p>{{this.price}} </p>
+<p>{{this.category}} </p>
+<p>{{this.description}} </p>
 
-<script> src="/socket.io/socket.io.js" </script>
-<script src="/src/public/js/realTimeProducts.js"></script>
+{{/each}}
+
