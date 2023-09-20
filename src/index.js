@@ -1,4 +1,5 @@
 import express from "express";
+import { createServer } from "http";
 import ProductRo from "./router/product.routes.js";
 import CartRouter from "./router/carts.routes.js";
 import { engine } from "express-handlebars";
@@ -11,12 +12,13 @@ import {Server} from "socket.io";
 
 
 const app = express();
+const httpServer = createServer(app);
+const io = new Server(httpServer);
 const PORT = 8080;
-const server = app.listen(PORT, () => {
-    console.log(`Servidor Express Puerto: ${PORT}`);
- });
 
-const socketServer = new Server(server);
+httpServer.listen(PORT, () => {
+    console.log(`Servidor Express Puerto: ${PORT}`);
+  });
 
 
 //Handlebars
@@ -26,10 +28,10 @@ app.set("view engine", "handlebars")
 app.use(express.static(__dirname + "/public"));
 app.use("/", viewsRouter);
 
-socketServer.on("connection", socket => {
+io.on("connection", (socket) => {
 console.log("Nuevo cliente conectado")
-socket.on("message", data => {
-    console.log(data)
+socket.on("mensaje", (data) => {
+    console.log(data);
 })
 })
 
@@ -42,7 +44,7 @@ app.get("/", async (req, res) => {
 })
 
 app.get("/:id", async (req, res) => {
-    let prod = await product.getProductsById(req.params.id)
+    let prod = await ProductRo.getProductsById(req.params.id)
     res.render("prod", {
         title: "Express Avanzado | Handlebars",
         products : prod
