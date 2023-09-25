@@ -1,14 +1,40 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{title}}</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <title> {{title}} </title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    {{{body}}}
-<script src="/socket.io/socket.io.js"></script>
+
+  <div class="container">
+        <h1>Agregar Producto</h1>
+        <form id="productForm" method="POST" action="/addProduct" >
+            <div>
+                <label for="Producto">Producto:</label>
+                <input type="text" id="name" name="name"><br>
+
+                <label for="Descripcion">Descripcion:</label>
+                <input type="description" id="description" name="description"><br>
+
+                <label for="Precio">Precio:</label>
+                <input type="precio" id="price" name="price"><br>
+
+                 <label for="Categoria">Categoria:</label>
+                <input type="categoria" id="category" name="categoria"><br>
+
+                <button type="submit">Agregar Producto</button>
+            </div>
+        </form>
+    </div>
+
+
+ {{{body}}}
+
+
+    <script src="/socket.io/socket.io.js"></script>
     <script src="/js/realTimeProducts.js"></script>
 </body>
+
 </html>

@@ -1,3 +1,81 @@
 body {
     background-color:rgb(183, 238, 248);
 }
+
+/* Estilos para el contenedor principal */
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centra horizontalmente */
+    justify-content: center; /* Centra verticalmente */
+    
+}
+
+/* Estilos para el formulario y su contenido */
+#productForm {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 300px; /* Ancho del formulario */
+}
+
+/* Estilos para los elementos del formulario */
+label, input, button {
+    display: block;
+    margin-bottom: 10px;
+}
+
+button {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+}
+
+.pro {
+    display: grid;
+    grid-template-columns: 2fr 2fr 2fr 2fr;
+    padding: 50px;
+  
+  }
+
+  .productos {
+    padding: 15px;
+    display: flex;
+    background-color: #D9D9D9;
+    border-radius: 25px;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+    transition: 0.5s;
+    margin: 20px;
+    
+  }
+
+  .infoCard {
+    display: flex;
+    flex-direction: column;
+   }
+
+.textosprod {
+  display: flex;
+  flex-direction: column;
+ }
+
+ .productos__precio {
+    color: #343232;
+    display: flex;
+    font-size: 30px;
+    font-family: "AdventPro";
+    font-weight: bold;
+}
+
+.productos__nombre {
+    color: black;
+    display: flex;
+    font-size: 60px;
+    font-family: "AdventPro";
+    line-height: 60px;
+  }

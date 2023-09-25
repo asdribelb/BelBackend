@@ -1,9 +1,27 @@
-    <h1>Lista de Productos </h1>
-{{#each products}}
-<h2>{{this.name}} </h2>
-<p>{{this.price}} </p>
-<p>{{this.category}} </p>
-<p>{{this.description}} </p>
+<h1>Lista de Productos </h1>
+<div class="pro">
 
-{{/each}}
+   {{#each products}}
+   <div class="productos">
 
+      <div class="infoCard">
+
+         <div class="textosprod">
+
+            <h2 class="productos__nombre">{{this.name}}</h2>
+
+            <div>
+               <h2 class="productos__precio">${{this.price}}</h2>
+               <h2 class="productos__precio">${{this.category}}</h2>
+               <h2 class="productos__precio">${{this.description}}</h2>
+
+            </div>
+         </div>
+
+      </div>
+
+
+   </div>
+   {{/each}}
+
+</div>

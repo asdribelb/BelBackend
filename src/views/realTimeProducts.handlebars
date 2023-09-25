@@ -1,5 +1,37 @@
-<h1> Productos </h1>
-<h2>{{products.name}} </h2>
-<p>{{products.price}} </p>
-<p>{{products.category}} </p>
-<p>{{products.description}} </p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Ingreso de Productos</title>
+    
+</head>
+<body>
+    
+    <script>
+        const socket = io(); // Conectar al servidor WebSocket
+
+        // Manejar el evento de formulario y emitir datos al servidor
+        document.getElementById('productForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            // Recopilar datos del formulario
+            const formData = new FormData(e.target);
+            const productData = {};
+
+            formData.forEach((value, key) => {
+                productData[key] = value;
+            });
+            console.log('Formulario enviado:', productData)
+
+            // Emitir un evento de WebSocket para enviar los datos del producto
+            socket.emit('addProduct', productData);
+
+            // Limpiar el formulario
+            e.target.reset();
+        });
+
+    </script>
+</body>
+
+</html>
