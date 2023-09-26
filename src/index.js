@@ -8,7 +8,6 @@ import __dirname from "./utils.js";
 import ProductManager from "./controllers/ProductManager.js";
 import viewsRouter from "./routes/views.router.js";
 import { Server } from "socket.io";
-import { nanoid } from "nanoid"
 
 
 const app = express();
@@ -72,9 +71,6 @@ app.get("/:id", async (req, res) => {
         products: prod
     })
 })
-
-
-
 
 app.use("/api/products", ProductRo)
 app.use("/api/cart", CartRouter)
