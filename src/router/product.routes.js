@@ -71,4 +71,15 @@ ProductRo.delete("/:id", async (req, res) => {
   }
 });
 
+//Se agregan los productos entregando un json
+ProductRo.post("/", async (req, res) => {
+  let newProduct = req.body
+  res.send(await product.addProducts(newProduct))
+})
+//Se envia por socket.io
+ProductRo.get("/", async (req, res) => {
+  let totalProd = await product.getProducts()
+  res.render("realTimeProducts", { title: "Socket",totalProd })
+  });
+
 export default ProductRo;

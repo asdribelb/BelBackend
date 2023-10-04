@@ -35,7 +35,9 @@ app.use("/", viewsRouter)
 //static
 app.use(express.static(__dirname + "/public"));
 
-app.use("/realtimeproducts", ProductRo)
+app.get("/realtimeproducts", (req, res)=> {
+    res.render("realTimeProducts")
+})
 
 
 io.on("connection", (socket) => {

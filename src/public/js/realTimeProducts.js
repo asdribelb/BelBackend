@@ -38,16 +38,8 @@ const socket = io();
                     name: data,
                     text: `Producto agregado a la lista`,
                     confirmButtonText: 'Aceptar',
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        location.reload();
-                    }
-                });
+                })
             });
-
-            // Emitir un evento de WebSocket para enviar los datos del producto
-            io.emit("newProd", newProduct);
-        
 
         // Escuchar el evento "productAdded" y actualizar la tabla en tiempo real
         socket.on("productAdded", (product) => {
