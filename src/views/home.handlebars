@@ -1,27 +1,25 @@
-<h1>Lista de Productos </h1>
-<div class="pro">
-
-   {{#each products}}
-   <div class="productos">
-
-      <div class="infoCard">
-
-         <div class="textosprod">
-
-            <h2 class="productos__nombre">{{this.name}}</h2>
-
-            <div>
-               <h2 class="productos__precio">${{this.price}}</h2>
-               <h2 class="productos__precio">${{this.category}}</h2>
-               <h2 class="productos__precio">${{this.description}}</h2>
-
+ <div class="infoProd">
+            <h1>Listado de Productos con Handlebars</h1>
+            <div class="detallePro2">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Precio</th>
+                            <th>Categoria</th>
+                            <th>Descripcion</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each products}}
+                        <tr>
+                            <td>{{this.name}}</td>
+                            <td>{{this.price}}</td>
+                            <td>{{this.category}}</td>
+                            <td>{{this.description}}</td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
             </div>
-         </div>
-
-      </div>
-
-
-   </div>
-   {{/each}}
-
-</div>
+        </div>

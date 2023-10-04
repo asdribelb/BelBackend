@@ -35,23 +35,16 @@ app.use("/", viewsRouter)
 //static
 app.use(express.static(__dirname + "/public"));
 
-app.get("/realtimeproducts", (req, res) => {
-    res.render("realTimeProducts");
-});
+app.use("/realtimeproducts", ProductRo)
 
 
 io.on("connection", (socket) => {
     console.log(`Usuario ${socket.id}`)
 
-    socket.on("addProduct", async (productData) => {
-        console.log('Datos del producto recibidos en el servidor:', productData)
-        const result = await product.addProducts(productData);
-
-        if (result === "Producto Agregado") {
-            // Emitir un mensaje a través de WebSocket para actualizar la lista de productos en tiempo real
-            io.emit("productAdded", productData);
-        }
-    })
+    socket.on("newProd", (newProduct) => {
+        product.addProducts(newProduct)
+        io.emit("success", "Producto Agregado Correctamente");
+    });
 })
 
 

@@ -8,7 +8,42 @@ body {
     flex-direction: column;
     align-items: center; /* Centra horizontalmente */
     justify-content: center; /* Centra verticalmente */
+    padding: 50px;
     
+}
+
+.container2 {
+    display: flex;
+}
+.infoProd{
+    border: 2px solid white;
+    width: 48%;
+}
+
+.detallePro2 table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.detallePro2 th,
+.detallePro2 td {
+    border: 1px solid #dee2e6;
+    padding: 8px;
+    text-align: left;
+}
+
+.detallePro2 th {
+    background-color: #f8f9fa;
+    color: #495057;
+}
+
+.detallePro2 tr:nth-child(odd) {
+    background-color: #f2f2f2;
+}
+
+.detallePro2 tr:hover {
+    background-color: #e2e6ea;
 }
 
 /* Estilos para el formulario y su contenido */
@@ -41,41 +76,3 @@ button {
   
   }
 
-  .productos {
-    padding: 15px;
-    display: flex;
-    background-color: #D9D9D9;
-    border-radius: 25px;
-    flex-direction: column;
-    flex-wrap: nowrap;
-    align-items: center;
-    transition: 0.5s;
-    margin: 20px;
-    
-  }
-
-  .infoCard {
-    display: flex;
-    flex-direction: column;
-   }
-
-.textosprod {
-  display: flex;
-  flex-direction: column;
- }
-
- .productos__precio {
-    color: #343232;
-    display: flex;
-    font-size: 30px;
-    font-family: "AdventPro";
-    font-weight: bold;
-}
-
-.productos__nombre {
-    color: black;
-    display: flex;
-    font-size: 60px;
-    font-family: "AdventPro";
-    line-height: 60px;
-  }
