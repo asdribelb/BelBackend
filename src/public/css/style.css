@@ -1,0 +1,78 @@
+body {
+    background-color:rgb(183, 238, 248);
+}
+
+/* Estilos para el contenedor principal */
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centra horizontalmente */
+    justify-content: center; /* Centra verticalmente */
+    padding: 50px;
+    
+}
+
+.container2 {
+    display: flex;
+}
+.infoProd{
+    border: 2px solid white;
+    width: 48%;
+}
+
+.detallePro2 table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.detallePro2 th,
+.detallePro2 td {
+    border: 1px solid #dee2e6;
+    padding: 8px;
+    text-align: left;
+}
+
+.detallePro2 th {
+    background-color: #f8f9fa;
+    color: #495057;
+}
+
+.detallePro2 tr:nth-child(odd) {
+    background-color: #f2f2f2;
+}
+
+.detallePro2 tr:hover {
+    background-color: #e2e6ea;
+}
+
+/* Estilos para el formulario y su contenido */
+#productForm {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 300px; /* Ancho del formulario */
+}
+
+/* Estilos para los elementos del formulario */
+label, input, button {
+    display: block;
+    margin-bottom: 10px;
+}
+
+button {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+}
+
+.pro {
+    display: grid;
+    grid-template-columns: 2fr 2fr 2fr 2fr;
+    padding: 50px;
+  
+  }
+
