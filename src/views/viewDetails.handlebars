@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle Producto</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <header>
+        <h1>{{title}}</h1>
+        <a href="/products">Volver a la lista de productos</a>
+    </header>
+
+    <div class="product-details">
+        <p>{{product._id}}</p>
+        <h2>{{product.description}}</h2>
+        <p>Precio: ${{product.price}}</p>
+        <p>Stock: {{product.stock}}</p>
+        <p>Categoría: {{product.category}}</p>
+        <p>Estado: {{product.availability}}</p>
+        <button>Agregar al Carrito</button>
+    </div>
+
+    <footer>
+    
+    </footer>
+</body>
+</html>
