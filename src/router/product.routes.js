@@ -1,85 +1,99 @@
-import { Router } from "express";
-import ProductManager from "../controllers/ProductManager.js";
-import ValidationError from "./ValidationError.js"
+import { Router } from "express"
+import mongoose from "mongoose"
+import ProductManager from "../controllers/ProductManager.js"
 
-const ProductRo = Router();
-const product = new ProductManager();
+const prodRouter = Router()
+const product = new ProductManager()
 
-ProductRo.get("/", async (req, res) => {
-  try {
-    const products = await product.getProducts();
-    res.status(200).send(products);
-  } catch (error) {
-    // Maneja el error y devuelve un código de estado HTTP 500.
-    res.status(500).send("Error interno del servidor");
-  }
-});
-
-ProductRo.get("/:id", async (req, res) => {
-  try {
-    const id = req.params.id;
-    const productById = await product.getProductsById(id);
-    if (!productById) {
-      // Si el producto no se encontró, devuelve un código de estado 404.
-      res.status(404).send("Producto no encontrado2");
-    } else {
-      res.status(200).send(productById);
-    }
-  } catch (error) {
-    // Maneja el error y devuelve un código de estado HTTP 500.
-    res.status(500).send("Error interno del servidor");
-  }
-});
-
-ProductRo.post("/", async (req, res) => {
-  try {
-    const newProduct = req.body;
-    const result = await product.addProducts(newProduct);
-    res.status(200).send(result);
-  } catch (error) {
-    // Maneja el error y devuelve un código de estado HTTP 400 o 500 según corresponda.
-    if (error instanceof ValidationError) {
-        console.error("Error de validación:", error.message);
-      res.status(400).send("Error de validación");
-    } else {
-        console.error("Error interno del servidor:", error.message);
-      res.status(500).send("Error interno del servidor");
-    }
-  }
-});
-
-ProductRo.put("/:id", async (req, res) => {
-  try {
-    const id = req.params.id;
-    const updateProducts = req.body;
-    const result = await product.updateProducts(id, updateProducts);
-    res.status(200).send(result);
-  } catch (error) {
-    // Maneja el error y devuelve un código de estado HTTP 500.
-    res.status(500).send("Error interno del servidor");
-  }
-});
-
-ProductRo.delete("/:id", async (req, res) => {
-  try {
-    const id = req.params.id;
-    const result = await product.deleteProducts(id);
-    res.status(200).send(result);
-  } catch (error) {
-    // Maneja el error y devuelve un código de estado HTTP 500.
-    res.status(500).send("Error interno del servidor");
-  }
-});
-
-//Se agregan los productos entregando un json
-ProductRo.post("/", async (req, res) => {
-  let newProduct = req.body
-  res.send(await product.addProducts(newProduct))
+//Se actualizan los productos http://localhost:8080/api/products/ con put, se envian todos los datos sin el ID
+prodRouter.put("/:id", async (req,res) => {
+    let id = req.params.id
+    let updProd = req.body
+    res.send(await product.updateProduct(id, updProd))
 })
-//Se envia por socket.io
-ProductRo.get("/", async (req, res) => {
-  let totalProd = await product.getProducts()
-  res.render("realTimeProducts", { title: "Socket",totalProd })
-  });
 
-export default ProductRo;
+//Se llaman todos productos por el id http://localhost:8080/api/products/idproducto con GET
+prodRouter.get("/:id", async (req, res) => {
+    try{
+        const prodId = req.params.id;
+        const productDetails = await product.getProductById(prodId);
+        res.render("viewDetails", { product: productDetails });
+    } catch (error) {
+        console.error('Error al obtener el producto:', error);
+        res.status(500).json({ error: 'Error al obtener el producto' });
+    } 
+});
+
+
+
+//Se llaman todos productos con limit con http://localhost:8080/api/products/limit/numeroLimit con GET
+prodRouter.get("/limit/:limit", async (req, res) => { 
+    let limit = parseInt(req.params.limit)
+    if (isNaN(limit) || limit <= 0) {
+        limit = 10;
+    }    
+    res.send(await product.getProductsByLimit(limit))
+})
+
+//Se llaman todos los productos por page con http://localhost:8080/api/products/page/numeroPage con GET
+prodRouter.get("/page/:page", async (req, res) => { 
+    let page = parseInt(req.params.page)
+    if (isNaN(page) || page <= 0) {
+        page = 1;
+    }
+    const productsPerPage = 1;   
+    res.send(await product.getProductsByPage(page, productsPerPage))
+})
+
+//Se llaman todos los productos por query con http://localhost:8080/api/products/buscar/query?q=nombreProducto con get
+prodRouter.get("/buscar/query", async (req, res) => { 
+    const query = req.query.q  
+    res.send(await product.getProductsByQuery(query))
+})
+
+//Se llaman todos los productos por sort con http://localhost:8080/api/products/ordenar/sort?sort=desc y
+//http://localhost:8080/api/products/ordenar/sort/sort?sort=asc  con GET en orden ascendente y descendente
+prodRouter.get("/ordenar/sort", async (req, res) => { 
+        let sortOrder = 0;
+        if (req.query.sort) {
+     
+        if (req.query.sort === "desc") {
+          sortOrder = -1; 
+        }else if(req.query.sort === "asc"){
+            sortOrder = 1; 
+        }
+      }
+    res.send(await product.getProductsBySort(sortOrder))
+})
+
+
+prodRouter.get("/", async (req, res) => {
+    let sortOrder = req.query.sortOrder; 
+    let category = req.query.category; 
+    let availability = req.query.availability; 
+    if(sortOrder === undefined){
+        sortOrder = "asc"
+    }
+    if(category === undefined){
+        category = ""
+    }
+    if(availability === undefined){
+        availability = ""
+    }
+    res.send(await product.getProductsMaster(null,null,category,availability, sortOrder))
+})
+
+
+//Se eliminan los productos por id http://localhost:8080/api/products/idproducto con DELETE
+prodRouter.delete("/:id", async (req, res) => {
+    let id = req.params.id
+    res.send(await product.delProducts(id))
+})
+
+//Se agregan los productos generando un json
+prodRouter.post("/", async (req, res) => {
+    let newProduct = req.body
+    res.send(await product.addProduct(newProduct))
+})
+
+export default prodRouter

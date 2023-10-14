@@ -3,8 +3,8 @@ import { engine } from "express-handlebars";
 import * as path from "path"
 import __dirname from "./utils.js";
 import mongoose from "mongoose"
-import cartRouter from "./router/carts.routes.js"
-import prodRouter from "./router/products.routes.js"
+import prodRouter from "./router/product.routes.js"
+import cartRouter from "./router/cart.routes.js"
 import ProductManager from "./controllers/ProductManager.js"
 import CartManager from "./controllers/CartManager.js"
 
