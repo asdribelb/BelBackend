@@ -3,19 +3,45 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
+    text-align: center;
 }
 
 header {
-    background-color: #333;
+    background-color: #007bff;
     color: #fff;
-    padding: 10px;
+    padding: 20px;
     text-align: center;
 }
 
 a {
     color: #a524c2;
-    
     margin-left: 10px;
+}
+
+h1 {
+    text-align: center;
+}
+
+header h1 {
+    font-size: 24px;
+}
+
+.detalle-prod {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    padding: 20px;
+    margin: 20px;
+    text-align: left;
+    box-shadow: 2px 2px 5px #888888;
+}
+
+.detalle-prod h2 {
+    font-size: 24px;
+    margin: 10px 0;
+}
+
+.detalle-prod p {
+    margin: 5px 0;
 }
 
 /* Estilos para el contenedor principal */
@@ -54,6 +80,7 @@ a {
     gap: 20px; /* Espacio entre los productos */
 }
 
+
 .container2 {
     display: flex;
 }
@@ -89,12 +116,13 @@ a {
 }
 
 .product-details {
-    text-align: center;
-    margin: 20px;
-    padding: 20px;
+    background-color: #fff;
     border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #f9f9f9;
+    padding: 20px;
+    margin: 20px;
+    display: inline-block; /* Para centrar el contenido horizontalmente */
+    text-align: left; /* Alinea el texto a la izquierda dentro del contenedor */
+    box-shadow: 2px 2px 5px #888888;
 }
 
 
@@ -144,11 +172,21 @@ button:hover {
 
   /*Footer*/
   
+  footer {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px;
+}
 
 
 .texto {
     display: grid;
     text-align: center;
+}
+
+/* Derechos de autor */
+.texto p {
+    font-size: 14px;
 }
 
 
