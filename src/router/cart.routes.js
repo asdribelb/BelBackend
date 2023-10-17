@@ -5,7 +5,7 @@ import { cartsModel } from "../models/carts.model.js";
 const cartRouter = Router()
 const carts = new CartManager()
 
-// Rutas relacionadas con carritos
+// Obtener todos los carritos 
 cartRouter.get("/", async (req, res) => {
     try {
       const carts = await cartsModel.find();
@@ -16,6 +16,7 @@ cartRouter.get("/", async (req, res) => {
     }
   });
   
+  // Crear un nuevo carrito
   cartRouter.post("/", async (req, res) => {
     const { description, quantity, total } = req.body;
     if (!description || !quantity || !total) {
@@ -26,6 +27,7 @@ cartRouter.get("/", async (req, res) => {
     }
   });
   
+  // Actualizar un carrito por su ID
   cartRouter.put("/:id_cart", async (req, res) => {
     const { id_cart } = req.params;
     const cartsToReplace = req.body;
@@ -37,6 +39,7 @@ cartRouter.get("/", async (req, res) => {
     }
   });
   
+  // Eliminar un carrito por su ID
   cartRouter.delete("/:id_cart", async (req, res) => {
     const { id_cart } = req.params;
     const result = await cartsModel.deleteOne({ _id: id_cart });
@@ -44,6 +47,8 @@ cartRouter.get("/", async (req, res) => {
   });
   
   // Rutas relacionadas con productos en carritos
+  
+  // Agregar un producto a un carrito específico
   cartRouter.post("/:cid/products/:pid", async (req, res) => {
     const cartId = req.params.cid;
     const prodId = req.params.pid;
@@ -51,6 +56,7 @@ cartRouter.get("/", async (req, res) => {
     res.json(result);
   });
   
+  // Eliminar un producto de un carrito específico
   cartRouter.delete("/:cid/products/:pid", async (req, res) => {
     const cartId = req.params.cid;
     const prodId = req.params.pid;
@@ -58,6 +64,7 @@ cartRouter.get("/", async (req, res) => {
     res.json(result);
   });
   
+  // Actualizar un producto en un carrito específico
   cartRouter.put("/:cid/products/:pid", async (req, res) => {
     const cartId = req.params.cid;
     const prodId = req.params.pid;
@@ -66,6 +73,7 @@ cartRouter.get("/", async (req, res) => {
     res.json(result);
   });
   
+  // Eliminar todos los productos de un carrito específico
   cartRouter.delete("/:cid", async (req, res) => {
     const cartId = req.params.cid;
     const result = await carts.removeAllProductsFromCart(cartId);
@@ -80,4 +88,5 @@ cartRouter.get("/", async (req, res) => {
   });
 
 export default cartRouter
+
 

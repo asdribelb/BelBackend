@@ -1,5 +1,21 @@
 body {
     background-color:rgb(183, 238, 248);
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+    text-align: center;
+}
+
+a {
+    color: #a524c2;
+    
+    margin-left: 10px;
 }
 
 /* Estilos para el contenedor principal */
@@ -115,6 +131,10 @@ button {
     cursor: pointer;
 }
 
+button:hover {
+    background-color: #0056b3;
+}
+
 .pro {
     display: grid;
     grid-template-columns: 2fr 2fr 2fr 2fr;
@@ -124,27 +144,11 @@ button {
 
   /*Footer*/
   
-.pagina {
-    display: flex;
-    justify-content: center;
-    margin-top: 30px;
-}
 
-.pagina1 {
-    width: 50px;
-    padding: 10px;
-    flex-grow: 1;
-}
 
 .texto {
     display: grid;
     text-align: center;
 }
 
-.scale {
-    transition: 1s;
-}
 
-.scale:hover {
-    transform: scale(1.5);
-}
