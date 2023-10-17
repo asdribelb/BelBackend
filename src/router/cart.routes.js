@@ -1,63 +1,83 @@
 import { Router } from "express"
 import CartManager from "../controllers/CartManager.js"
+import { cartsModel } from "../models/carts.model.js";
 
 const cartRouter = Router()
 const carts = new CartManager()
 
-//Se agrega producto http://localhost:8080/api/carts con post donde nos ingresa un id y un producto con arreglo vacio
-cartRouter.post("/", async (req,res) =>{
-    let newCart = req.body
-    res.send(await carts.addCart(newCart))
-})
-//Traemos todos los carritos con http://localhost:8080/api/carts con GET
-cartRouter.get("/", async (req,res)=>{
-    res.send(await carts.getCarts())
-})
-//Traemos el carro por id con http://localhost:8080/api/carts/idCarts con GET
-cartRouter.get("/:id", async (req,res)=>{
-    res.send(await carts.getCartById(req.params.id))
-})
-
-//Ingresamos el producto al carrito con el siguiente formato http://localhost:8080/api/carts/idCarts/products/idProd con POST
-cartRouter.post("/:cid/products/:pid", async (req,res) => {
-    let cartId = req.params.cid
-    let prodId = req.params.pid
-    res.send(await carts.addProductInCart(cartId, prodId))
-})
-
-//Eliminar el producto al carrito con el siguiente formato http://localhost:8080/api/carts/idCarts/products/idProd con DELETE
-cartRouter.delete("/:cid/products/:pid", async (req,res) => {
-    let cartId = req.params.cid
-    let prodId = req.params.pid
-    res.send(await carts.removeProductFromCart(cartId, prodId))
-})
-
-//Actualizar el carro con varios productos con el siguiente formato http://localhost:8080/api/carts/idCarts con PUT
-cartRouter.put("/:cid", async (req,res) => {
-    let cartId = req.params.cid
-    let newProducts = req.body
-    res.send(await carts.updateProductsInCart(cartId, newProducts))
-})
-
-//Actualizar el carro con varios productos con el siguiente formato http://localhost:8080/api/carts/idCarts con PUT
-cartRouter.put("/:cid/products/:pid", async (req,res) => {
-    let cartId = req.params.cid
-    let prodId = req.params.pid
-    let newProduct = req.body
-    res.send(await carts.updateProductInCart(cartId, prodId, newProduct))
-})
-//Eliminar todos los productos del carro http://localhost:8080/api/carts/idCarts con DELETE
-cartRouter.delete("/:cid", async (req,res) => {
-    let cartId = req.params.cid
-    res.send(await carts.removeAllProductsFromCart(cartId))
-})
-
-//Population
-//Traemos todos los carritos con http://localhost:8080/api/carts con GET
-cartRouter.get("/population/:cid", async (req,res)=>{
-    let cartId = req.params.cid
-    res.send(await carts.getCartWithProducts(cartId))
-})
+// Rutas relacionadas con carritos
+cartRouter.get("/", async (req, res) => {
+    try {
+      const carts = await cartsModel.find();
+      res.json({ result: "success", payload: carts });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ result: "error", error: "Error al obtener carritos" });
+    }
+  });
+  
+  cartRouter.post("/", async (req, res) => {
+    const { description, quantity, total } = req.body;
+    if (!description || !quantity || !total) {
+      res.status(400).json({ result: "error", error: "Faltan parámetros en el cuerpo" });
+    } else {
+      const result = await cartsModel.create({ description, quantity, total });
+      res.status(201).json({ result: "success", payload: result });
+    }
+  });
+  
+  cartRouter.put("/:id_cart", async (req, res) => {
+    const { id_cart } = req.params;
+    const cartsToReplace = req.body;
+    if (!cartsToReplace.description || !cartsToReplace.quantity || !cartsToReplace.total) {
+      res.status(400).json({ result: "error", error: "Faltan parámetros en el cuerpo" });
+    } else {
+      const result = await cartsModel.updateOne({ _id: id_cart }, cartsToReplace);
+      res.json({ result: "success", payload: result });
+    }
+  });
+  
+  cartRouter.delete("/:id_cart", async (req, res) => {
+    const { id_cart } = req.params;
+    const result = await cartsModel.deleteOne({ _id: id_cart });
+    res.json({ result: "success", payload: result });
+  });
+  
+  // Rutas relacionadas con productos en carritos
+  cartRouter.post("/:cid/products/:pid", async (req, res) => {
+    const cartId = req.params.cid;
+    const prodId = req.params.pid;
+    const result = await carts.addProductInCart(cartId, prodId);
+    res.json(result);
+  });
+  
+  cartRouter.delete("/:cid/products/:pid", async (req, res) => {
+    const cartId = req.params.cid;
+    const prodId = req.params.pid;
+    const result = await carts.removeProductFromCart(cartId, prodId);
+    res.json(result);
+  });
+  
+  cartRouter.put("/:cid/products/:pid", async (req, res) => {
+    const cartId = req.params.cid;
+    const prodId = req.params.pid;
+    const newProduct = req.body;
+    const result = await carts.updateProductInCart(cartId, prodId, newProduct);
+    res.json(result);
+  });
+  
+  cartRouter.delete("/:cid", async (req, res) => {
+    const cartId = req.params.cid;
+    const result = await carts.removeAllProductsFromCart(cartId);
+    res.json(result);
+  });
+  
+  // Ruta para obtener detalles del carrito con productos
+  cartRouter.get("/population/:cid", async (req, res) => {
+    const cartId = req.params.cid;
+    const result = await carts.getCartWithProducts(cartId);
+    res.json(result);
+  });
 
 export default cartRouter
 

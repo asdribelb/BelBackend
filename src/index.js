@@ -11,8 +11,12 @@ import CartManager from "./controllers/CartManager.js"
 
 const app = express();
 const PORT = 8080;
+
 const product = new ProductManager()
 const cart = new CartManager()
+
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
 app.use("/api/products", prodRouter)
 app.use("/api/carts", cartRouter)
@@ -20,9 +24,6 @@ app.use("/api/carts", cartRouter)
 app.listen(PORT, () => {
     console.log(`Servidor Express Puerto ${PORT}`)
 })
-
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
 
 
 //Mongoose
@@ -51,6 +52,8 @@ app.get("/products", async (req, res) => {
         products : allProducts
     });
 })
+
+
 app.get("/carts/:cid", async (req, res) => {
     let id = req.params.cid
     let allCarts  = await cart.getCartWithProducts(id)
