@@ -6,6 +6,19 @@ body {
     text-align: center;
 }
 
+.form-container {
+    display: flex;
+    justify-content: center; /* Centra horizontalmente */
+    align-items: center; /* Centra verticalmente */
+    height: 100vh; /* Ajusta la altura al 100% de la ventana */
+}
+
+.acceso {
+    text-align: center; /* Alinea el texto en el centro */
+    margin-top: 10px; /* Espacio superior para separarlo del formulario */
+    text-decoration: none; /* Elimina el subrayado del enlace si es necesario */
+}
+
 header {
     background-color: #007bff;
     color: #fff;
