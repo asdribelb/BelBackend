@@ -48,6 +48,7 @@ app.use(session({
     saveUninitialized: false,
 }))
 
+// Rutas para manejar productos, carritos y sesiones de usuario
 app.use("/api/products", prodRouter)
 app.use("/api/carts", cartRouter)
 app.use("/api/sessions", userRouter)
@@ -60,6 +61,7 @@ app.set("views", path.resolve(__dirname + "/views"))
 //static
 app.use(express.static(__dirname + "/public"));
 
+// Ruta para mostrar productos en la vista
 app.get("/products", async (req, res) => {
     if (!req.session.emailUsuario) {
         return res.redirect("/login")
@@ -75,7 +77,7 @@ app.get("/products", async (req, res) => {
     });
 })
 
-
+// Ruta para mostrar el carrito
 app.get("/carts/:cid", async (req, res) => {
     let id = req.params.cid
     let allCarts = await cart.getCartWithProducts(id)
@@ -85,20 +87,22 @@ app.get("/carts/:cid", async (req, res) => {
     });
 })
 
-//Ingreso Login http://localhost:8080/login
+// Ruta para el inicio de sesión
 app.get("/login", async (req, res) => {
     res.render("login", {
         title: "Login",
     });
 
 })
-//Ingreso Register http://localhost:8080/register
+
+// Ruta para el registro de usuarios
 app.get("/register", async (req, res) => {
     res.render("register", {
         title: "Register",
     });
 })
-//Ingreso Profile http://localhost:8080/profile
+
+// Ruta para el perfil de usuario
 app.get("/profile", async (req, res) => {
     if (!req.session.emailUsuario) {
         return res.redirect("/login")
