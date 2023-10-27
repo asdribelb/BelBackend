@@ -3,10 +3,10 @@ import { uploader } from "../controllers/multer.js";
 
 const router = Router();
 
-let products = []; // Change variable name to 'products'
+let products = [];
 
 router.get("/", (req, res) => {
-  res.send({ status: "success", payload: products }); // Change 'prod' to 'products'
+  res.send({ status: "success", payload: products }); 
 });
 
 router.post("/upload", uploader.single("file"), (req, res) => {

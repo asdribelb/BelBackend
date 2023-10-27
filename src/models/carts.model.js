@@ -2,11 +2,15 @@ import mongoose from "mongoose"
 
 const cartsCollection = "carts";
 
-const cartsSchema = new mongoose.Schema({
-    
-    description: { type: String, max: 30, required: true},
-    quantity: { type: Number, required: true},
-    total: { type: Number, required: true}
-});
+const cartsSchema = new mongoose.Schema({ 
+    products: [
+        {
+          productId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'products'},
+          quantity: Number,
+        },
+      ],
+})
 
 export const cartsModel = mongoose.model(cartsCollection, cartsSchema)
