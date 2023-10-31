@@ -9,10 +9,13 @@ import ProductManager from "./controllers/ProductManager.js"
 import CartManager from "./controllers/CartManager.js"
 import userRouter from "./router/user.routes.js"
 import MongoStore from "connect-mongo"
+import passport from "passport"
 import session from 'express-session'
 import FileStore from 'session-file-store'
-import passport from "passport"
 import initializePassword from "./config/passport.config.js"
+
+
+
 
 const app = express();
 const PORT = 8080;
@@ -106,6 +109,13 @@ app.get("/register", async (req, res) => {
     res.render("register", {
         title: "Register",
     });
+})
+
+app.get("/", async (req, res) => { 
+    if (!req.session.emailUsuario) 
+    {
+        return res.redirect("/login")
+    }
 })
 
 // Ruta para el perfil de usuario

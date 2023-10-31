@@ -73,14 +73,8 @@ userRouter.get("/githubcallback", passport.authenticate("github", { failureRedir
     req.session.user = req.user;
     req.session.emailUsuario = req.session.user.email
     req.session.rolUsuario = req.session.user.rol
-    res.redirect("/products")
-});
+    res.redirect("/products");    
+})
 
-// Página de inicio de sesión
-userRouter.get("/login", async (req, res) => {
-    res.render("login", {
-        title: "Login",
-    });
-});
 
 export default userRouter;

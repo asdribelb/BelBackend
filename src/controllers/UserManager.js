@@ -54,16 +54,15 @@ class UserManager extends usersModel {
     // Obtiene un usuario por su ID
     async getUserById(id) {
         try {
-            // Busca un usuario por su ID y devuelve solo los datos en formato JSON.
-            const user = await UserManager.findById(id).lean();
-
+            const user = await UserManager.findById(id).exec();
+    
             if (!user) {
-                return 'Usuario no encontrado';
+                return done(null, false); // Usuario no encontrado
             }
-            return user;
+    
+            return done(null, user);
         } catch (error) {
-            console.error('Error al obtener el usuario:', error);
-            return 'Error al obtener el usuario';
+            return done(error); // Error al obtener el usuario
         }
     }
 
