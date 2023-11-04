@@ -88,7 +88,7 @@ const initializePassword = () => {
                         password: "",
                         rol: "usuario"
                     }
-                    let result = await userMan.create(newUser)
+                    let result = await userMan.addUser(newUser)
                     done(null, result)
                 }
                 else {

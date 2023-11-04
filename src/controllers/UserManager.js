@@ -11,8 +11,8 @@ class UserManager extends usersModel {
     async addUser(userData) {
         try {
             // Utiliza el modelo de usuarios para crear un nuevo usuario en la base de datos.
-            await usersModel.create(userData);
-            return 'Usuario agregado';
+            const user = await usersModel.create(userData);
+            return user;
         } catch (error) {
             console.error('Error al agregar el usuario:', error);
             return 'Error al agregar el usuario';
@@ -57,12 +57,12 @@ class UserManager extends usersModel {
             const user = await UserManager.findById(id).exec();
     
             if (!user) {
-                return done(null, false); // Usuario no encontrado
+                return null; // Usuario no encontrado
             }
     
-            return done(null, user);
+            return user;
         } catch (error) {
-            return done(error); // Error al obtener el usuario
+            return error; // Error al obtener el usuario
         }
     }
 
