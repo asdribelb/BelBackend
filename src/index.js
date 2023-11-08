@@ -1,135 +1,71 @@
-import express from "express";
-import { engine } from "express-handlebars";
-import * as path from "path"
-import __dirname from "./utils.js";
+import express from "express"
 import mongoose from "mongoose"
-import prodRouter from "./router/product.routes.js"
-import cartRouter from "./router/cart.routes.js"
-import ProductManager from "./controllers/ProductManager.js"
-import CartManager from "./controllers/CartManager.js"
-import userRouter from "./router/user.routes.js"
-import MongoStore from "connect-mongo"
 import passport from "passport"
-import session from 'express-session'
-import FileStore from 'session-file-store'
-import initializePassword from "./config/passport.config.js"
+import cookieParser from "cookie-parser"
+import jwt from "jsonwebtoken"
+import { Strategy as JwtStrategy } from 'passport-jwt';
+import { ExtractJwt as ExtractJwt } from 'passport-jwt';
+import * as path from "path"
+import __dirname, { authorization, passportCall } from "./utils.js"
+import initializePassport from "./config/passport.config.js"
+
+const app = express()
+
+const users = [
+    { id: 1, email: "ejemplo@hotmail.com", password: "123456", role: "user" }
+]
+
+const jwtOptions = {
+    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    secretOrKey: "Secret-key"
+}
+
+passport.use(
+    new JwtStrategy(jwtOptions, (jwt_payload, done) => {
+        const user = users.find((user) => user.email === jwt_payload.email)
+        if (!user) {
+            return done(null, false, { message: "Usuario no encontrado" })
+        }
+        return done(null, user)
+    })
+)
 
 
-
-
-const app = express();
-const PORT = 8080;
-const fileStorage = FileStore(session)
-const product = new ProductManager()
-const cart = new CartManager()
-
-app.use(express.json())
-app.use(express.urlencoded({ extended: false }))
-
-
-app.listen(PORT, () => {
-    console.log(`Servidor Express Puerto ${PORT}`)
-})
-
-
-//Mongoose
+//Mongo Atlas
 mongoose.connect("mongodb+srv://asdribelb:LIaLTms1Lcgdfohq@abellorin.mity2xr.mongodb.net/?retryWrites=true&w=majority")
     .then(() => {
-        console.log("Conectado a la base de datos")
+        console.log("Conectado con Mongo Atlas")
     })
     .catch(error => {
         console.error("Error al conectarse a la base de datos, error" + error)
     })
 
-
-//Mongo Atlas
-app.use(session({
-    store: MongoStore.create({
-        mongoUrl: "mongodb+srv://asdribelb:LIaLTms1Lcgdfohq@abellorin.mity2xr.mongodb.net/?retryWrites=true&w=majority",
-        mongoOptions: { useNewUrlParser: true, useUnifiedTopology: true }, ttl: 3600
-    }),
-    secret: "ClaveSecreta",
-    resave: false,
-    saveUninitialized: false,
-}))
-
 //Passport//
-initializePassword()
-app.use(passport.initialize())
-app.use(passport.session())
+app.use(express.json())
+app.use(express.static(path.join(__dirname, 'public')));
+app.set('views', path.join(__dirname, 'views'));
+app.use(cookieParser());
+initializePassport();
+app.use(passport.initialize());
 
-// Rutas para manejar productos, carritos y sesiones de usuario
-app.use("/api/products", prodRouter)
-app.use("/api/carts", cartRouter)
-app.use("/api/sessions", userRouter)
-
-//Handlebars
-app.engine("handlebars", engine())
-app.set("view engine", "handlebars")
-app.set("views", path.resolve(__dirname + "/views"))
-
-//static
-app.use(express.static(__dirname + "/public"));
-
-// Ruta para mostrar productos en la vista
-app.get("/products", async (req, res) => {
-    if (!req.session.emailUsuario) {
-        return res.redirect("/login")
+app.post("/login", (req, res) => {
+    const { email, password } = req.body
+    const user = users.find((user) => user.email === email)
+    if (!user || user.password !== password) {
+        return res.status(401).json({ message: "Error de autenticacion" })
     }
-    let allProducts = await product.getProducts()
-    allProducts = allProducts.map(product => product.toJSON());
-    res.render("viewProducts", {
-        title: "Productos",
-        products: allProducts,
-        email: req.session.emailUsuario,
-        rol: req.session.rolUsuario,
-    });
+    const token = jwt.sign({ email, password, role: "user" }, "Secret-key", { expiresIn: "24h" })
+    res.cookie("token", token, { httpOnly: true, maxAge: 60 * 60 * 1000 })
+    console.log(token)
+    res.json({ token })
+})
+app.get('/', (req, res) => {
+    res.sendFile('index.html', { root: app.get('views') });
+});
+app.get('/current', passportCall('jwt'), authorization('user'), (req, res) => {
+    res.send(req.user)
 })
 
-// Ruta para mostrar el carrito
-app.get("/carts/:cid", async (req, res) => {
-    let id = req.params.cid
-    let allCarts = await cart.getCartWithProducts(id)
-    res.render("viewCart", {
-        title: "Carro",
-        carts: allCarts
-    });
+app.listen(8080, () => {
+    console.log("Servidor corriendo en puerto 8080")
 })
-
-// Ruta para el inicio de sesión
-app.get("/login", async (req, res) => {
-    res.render("login", {
-        title: "Login",
-    });
-
-})
-
-// Ruta para el registro de usuarios
-app.get("/register", async (req, res) => {
-    res.render("register", {
-        title: "Register",
-    });
-})
-
-app.get("/", async (req, res) => { 
-    if (!req.session.emailUsuario) 
-    {
-        return res.redirect("/login")
-    }
-})
-
-// Ruta para el perfil de usuario
-app.get("/profile", async (req, res) => {
-    if (!req.session.emailUsuario) {
-        return res.redirect("/login")
-    }
-    res.render("profile", {
-        title: "Profile Admin",
-        first_name: req.session.nomUsuario,
-        last_name: req.session.apeUsuario,
-        email: req.session.emailUsuario,
-        rol: req.session.rolUsuario,
-
-    });
-})
-
