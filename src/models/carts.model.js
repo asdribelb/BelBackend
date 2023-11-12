@@ -3,14 +3,24 @@ import mongoose from "mongoose"
 const cartsCollection = "carts";
 
 const cartsSchema = new mongoose.Schema({ 
-    products: [
+  first_name: String,
+  last_name: String,
+  email: String,
+  age: Number,
+  password: String,
+  cart: [
+    {
+      type: [
         {
-          productId: {
+          cart: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'products'},
-          quantity: Number,
-        },
-      ],
+            ref: 'carts',
+          },
+        }
+      ]
+    },
+  ],
+  rol: String
 })
 
 export const cartsModel = mongoose.model(cartsCollection, cartsSchema)
