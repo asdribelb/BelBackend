@@ -5,7 +5,7 @@
     "main": "index.js",
     "type": "module",
     "scripts": {
-        "dev": "nodemon src/index.js"
+        "dev": "nodemon src/app.js"
     },
     "keywords": [],
     "author": "",
@@ -25,6 +25,7 @@
         "mongoose": "^7.6.5",
         "mongoose-paginate-v2": "^1.7.4",
         "nanoid": "^4.0.2",
+        "nodemailer": "^6.9.7",
         "passport": "^0.6.0",
         "passport-github2": "^0.1.12",
         "passport-jwt": "^4.0.1",
@@ -35,6 +36,6 @@
         "ws": "^8.14.2"
     },
     "devDependencies": {
-        "nodemon": "^3.0.1"
+        "nodemon": "^3.0.2"
     }
 }
