@@ -78,9 +78,9 @@ socketServer.on("connection", socket => {
 
     socket.on("newEmail", async({email, comment}) => {
         let result = await transport.sendMail({
-            from:'Chat Correo <bast.s.rojas@gmail.com>',
+            from:'Chat Correo <asdribelb@gmail.com>',
             to:email,
-            subject:'Correo con Socket y Nodemailer',
+            subject:'Mensaje con Socket',
             html:`
             <div>
                 <h1>${comment}</h1>
