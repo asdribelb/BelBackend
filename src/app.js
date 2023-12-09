@@ -14,6 +14,7 @@ import UserMongo from "./dao/mongo/users.mongo.js"
 import ProdMongo from "./dao/mongo/products.mongo.js"
 import { Strategy as JwtStrategy } from 'passport-jwt';
 import { ExtractJwt as ExtractJwt } from 'passport-jwt';
+import {Server} from "socket.io"
 import __dirname, { authorization, passportCall, transport } from "./utils.js"
 import {generateAndSetToken} from "./jwt/token.js"
 import UserDTO from './dao/DTOs/user.dto.js'
@@ -29,6 +30,11 @@ const PORT = 8080;
 const users = new UserMongo()
 const products = new ProdMongo()
 
+mongoose.connect(config.mongo_url, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+});
+
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
@@ -36,11 +42,56 @@ app.listen(PORT, () => {
     console.log(`Servidor Express Puerto ${PORT}`)
 })
 
+//Mongo Atlas
+app.use(session({
+    store: MongoStore.create({
+        mongoUrl: "mongodb+srv://asdribelb:LIaLTms1Lcgdfohq@abellorin.mity2xr.mongodb.net/?retryWrites=true&w=majority",
+        mongoOptions: { useNewUrlParser: true, useUnifiedTopology: true }, ttl: 3600
+    }),
+    secret: "ClaveSecreta",
+    resave: false,
+    saveUninitialized: false,
+}))
 
-mongoose.connect(config.mongo_url, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-});
+const socketServer = new Server(httpServer)
+
+socketServer.on("connection", socket => {
+    console.log("Socket Conectado")
+})
+
+    socket.on("message", data => {
+        console.log(data)
+    })
+
+    socket.on("newProd", (newProduct) => {
+        products.addProduct(newProduct)
+        socketServer.emit("success", "Producto Agregado Correctamente");
+    });
+    socket.on("updProd", ({id, newProduct}) => {
+        products.updateProduct(id, newProduct)
+        socketServer.emit("success", "Producto Actualizado Correctamente");
+    });
+    socket.on("delProd", (id) => {
+        products.deleteProduct(id)
+        socketServer.emit("success", "Producto Eliminado Correctamente");
+    });
+
+    socket.on("newEmail", async({email, comment}) => {
+        let result = await transport.sendMail({
+            from:'Chat Correo <bast.s.rojas@gmail.com>',
+            to:email,
+            subject:'Correo con Socket y Nodemailer',
+            html:`
+            <div>
+                <h1>${comment}</h1>
+            </div>
+            `,
+            attachments:[]
+        })
+        socketServer.emit("success", "Correo enviado correctamente");
+    });
+
+    socket.emit("test","mensaje desde servidor a cliente, se valida en consola de navegador")
 
 const jwtOptions = {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -89,6 +140,7 @@ app.post("/login", async (req, res) => {
     const prodAll = await products.get()
     res.json({ token, user: userDTO, prodAll});
   });
+
 app.post("/api/register", async(req,res)=>{
     const {first_name, last_name, email,age, password, rol} = req.body
     const emailToFind = email

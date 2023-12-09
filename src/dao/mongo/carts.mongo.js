@@ -93,8 +93,13 @@ export default class Carts {
     };
     
     addCart = async (cart) => {
-        let result = await cartsModel.create(cart)
-        return result
-        console.log("Carro creado correctamente")
+        try {
+            let result = await cartsModel.create(cart);
+            console.log("Carro creado correctamente");
+            return result;
+        } catch (error) {
+            console.error("Error al agregar el carrito:", error);
+            return { error: "Error interno al agregar el carrito" };
+        }
     }
 }
