@@ -18,6 +18,9 @@ import {Server} from "socket.io"
 import __dirname, { authorization, passportCall, transport } from "./utils.js"
 import {generateAndSetToken} from "./jwt/token.js"
 import UserDTO from './dao/DTOs/user.dto.js'
+import session from "express-session";
+import MongoStore from "connect-mongo";
+import http from 'http';
 
 
 // Configuración de .env
@@ -26,6 +29,8 @@ dotenv.config();
 
 const app = express();
 const PORT = 8080;
+const server = http.createServer(app)
+const io = new Server(server)
 
 const users = new UserMongo()
 const products = new ProdMongo()
@@ -38,9 +43,9 @@ mongoose.connect(config.mongo_url, {
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-app.listen(PORT, () => {
-    console.log(`Servidor Express Puerto ${PORT}`)
-})
+server.listen(PORT, ()=>{
+    console.log(`Servidor corriendo en puerto ${PORT}`)
+  });
 
 //Mongo Atlas
 app.use(session({
@@ -53,30 +58,16 @@ app.use(session({
     saveUninitialized: false,
 }))
 
-const socketServer = new Server(httpServer)
-
-socketServer.on("connection", socket => {
-    console.log("Socket Conectado")
-})
-
-    socket.on("message", data => {
-        console.log(data)
-    })
-
-    socket.on("newProd", (newProduct) => {
-        products.addProduct(newProduct)
-        socketServer.emit("success", "Producto Agregado Correctamente");
+io.on('connection', (socket) => {
+    console.log('Cliente conectado');
+  
+    socket.emit('conexion-establecida', 'Conexión exitosa con el servidor de Socket');
+    socket.on('disconnect', () => {
+      console.log('Cliente desconectado');
     });
-    socket.on("updProd", ({id, newProduct}) => {
-        products.updateProduct(id, newProduct)
-        socketServer.emit("success", "Producto Actualizado Correctamente");
-    });
-    socket.on("delProd", (id) => {
-        products.deleteProduct(id)
-        socketServer.emit("success", "Producto Eliminado Correctamente");
-    });
+  });
 
-    socket.on("newEmail", async({email, comment}) => {
+    io.on("newEmail", async({email, comment}) => {
         let result = await transport.sendMail({
             from:'Chat Correo <asdribelb@gmail.com>',
             to:email,
@@ -88,10 +79,10 @@ socketServer.on("connection", socket => {
             `,
             attachments:[]
         })
-        socketServer.emit("success", "Correo enviado correctamente");
+        io.emit("success", "Correo enviado correctamente");
     });
 
-    socket.emit("test","mensaje desde servidor a cliente, se valida en consola de navegador")
+    io.emit("test","mensaje desde servidor a cliente, se valida en consola de navegador")
 
 const jwtOptions = {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
