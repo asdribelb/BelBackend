@@ -35,7 +35,7 @@ const io = new Server(server)
 const users = new UserMongo()
 const products = new ProdMongo()
 
-mongoose.connect(config.mongo_url, {
+mongoose.connect(config.MONGO_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 });
@@ -61,8 +61,8 @@ app.use(session({
 io.on('connection', (socket) => {
     console.log('Cliente conectado');
   
-    socket.emit('conexion-establecida', 'Conexión exitosa con el servidor de Socket');
-    socket.on('disconnect', () => {
+    io.emit('conexion-establecida', 'Conexión exitosa con el servidor de Socket');
+    io.on('disconnect', () => {
       console.log('Cliente desconectado');
     });
   });

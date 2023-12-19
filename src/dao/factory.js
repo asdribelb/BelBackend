@@ -4,9 +4,9 @@ export let Carts
 export let Products
 export let Users
 export let Tickets
-switch (config.persistence) {
+switch (config.PERSISTENCE) {
     case "MONGO":
-        const connection = mongoose.connect(config.mongo_url)
+        const connection = mongoose.connect(config.MONGO_URL)
         const { default: CartsMongo } = await import('./mongo/carts.mongo.js')
         const { default: ProductsMongo } = await import('./mongo/products.mongo.js')
         const { default: UsersMongo } = await import('./mongo/users.mongo.js')
