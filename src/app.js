@@ -79,7 +79,7 @@ io.on('connection', (socket) => {
             `,
             attachments:[]
         })
-        io.emit("success", "Correo enviado correctamente");
+        socket.emit("success", "Correo enviado correctamente");
     });
 
     io.emit("test","mensaje desde servidor a cliente, se valida en consola de navegador")
