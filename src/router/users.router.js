@@ -8,6 +8,7 @@ const router = Router()
 const usersMongo = new Users()
 
 router.get("/", async (req, res) => {
+    req.logger.info('Se cargan usuarios');
     let result = await usersMongo.get()
     res.send({ status: "success", payload: result })
 })

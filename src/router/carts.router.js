@@ -28,7 +28,6 @@ router.post("/", async (req, res) => {
 router.post("/:cid/purchase", async (req, res) => {
   try {
       let id_cart = req.params.cid;
-  
       const productos = req.body.productos;
       const correo = req.body.correo;
       console.log(correo)

@@ -4,6 +4,13 @@ import passport from "passport"
 import nodemailer from 'nodemailer'
 import bcrypt from 'bcrypt'
 
+export const createHash = async password => {
+    const saltRounds = 10
+    return await bcrypt.hash(password, saltRounds)
+}
+
+export const isValidPassword = (user,password) => bcrypt.compareSync(password, user.password)
+
 export const passportCall = (strategy) => {
     return async(req, res, next)=>{
         passport.authenticate(strategy, function(err, user, info){

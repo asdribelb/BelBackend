@@ -8,6 +8,7 @@ const router = Router()
 const ticketMongo = new Tickets()
 
 router.get("/", async (req, res) => {
+    req.logger.info('Se cargan tickets');
     let result = await ticketMongo.get()
     res.send({ status: "success", payload: result })
 })
