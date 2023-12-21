@@ -7,7 +7,7 @@ import TicketRepository from "./Tickets.repository.js";
 
 // Crear instancias de los repositorios utilizando las clases correspondientes
 
-export const cartService = new CartRepository(new Carts())
-export const productService = new ProductRepository(new Products())
-export const userService = new UserRepository(new Users())
-export const ticketService = new TicketRepository(new Tickets())
+export const cartService = new CartRepository (new Carts())
+export const productService = new ProductRepository (new Products())
+export const userService = new UserRepository (new Users())
+export const ticketService = new TicketRepository (new Tickets())
