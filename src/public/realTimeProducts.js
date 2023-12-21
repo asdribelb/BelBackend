@@ -35,7 +35,7 @@ document.getElementById('prod-form').addEventListener('submit', (e) => {
 
     if (eliminarProducto) {
         // Enviar mensaje si el checkbox está seleccionado
-        socket.emit("delProd", { id: id });
+        io.emit("delProd", { id: id });
     }else{
         const newProduct = {
             description: description,
@@ -48,15 +48,15 @@ document.getElementById('prod-form').addEventListener('submit', (e) => {
     
         if (id === '') {
             // Si el ID está vacío, es un nuevo producto (crear)
-            socket.emit("newProd", newProduct);
+            io.emit("newProd", newProduct);
         } else {
             // Si el ID tiene un valor, es un producto existente (actualizar)
-            socket.emit("updProd", { id: id, newProduct });
+            io.emit("updProd", { id: id, newProduct });
         }
     }
 });
 
-socket.on("success", (data) => {
+io.on("success", (data) => {
     Swal.fire({
         icon: 'success',
         title: data,

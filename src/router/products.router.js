@@ -15,12 +15,23 @@ router.get("/", async (req, res) => {
     res.send({ status: "success", payload: result })
 })
 
+//------------------Info Prueba CUstom Error--------------//
+// http://localhost:8080/products
+// {
+//    "price": 450000,
+//    "availability": true,
+//    "stock": 20,
+//    "category": "celulares"
+// }
+//------------------Info Prueba CUstom Error--------------//
+
+
 router.post("/", async (req, res) => {
     let { description, image, price, stock, category, availability } = req.body
     const product = { description, image, price, stock, category, availability}
     if (!description || !price) {
         try {
-            // Some code that might throw an error
+            
             throw CustomError.createError({
                 name: 'Error en Creacion de Producto',
                 cause: generateProductErrorInfo(product),
