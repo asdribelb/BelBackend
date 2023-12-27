@@ -26,7 +26,7 @@ import { Server } from "socket.io"
 import { createServer } from "http";
 import loggerMiddleware from "./loggerMiddleware.js";
 
-//                                                                                                                                                   Configuración de .env
+//Configuración de .env
 import dotenv from 'dotenv';
 dotenv.config();
 
