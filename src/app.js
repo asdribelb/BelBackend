@@ -6,6 +6,7 @@ import config from './config/config.js'
 import passport from "passport"
 import cookieParser from "cookie-parser"
 import initializePassword from "./config/passport.config.js"
+import { generateAndSetToken } from "./jwt/token.js"
 import cartsRouter from './router/carts.router.js'
 import productsRouter from './router/products.router.js'
 import usersRouter from './router/users.router.js'
@@ -14,16 +15,18 @@ import UserMongo from "./dao/mongo/users.mongo.js"
 import ProdMongo from "./dao/mongo/products.mongo.js"
 import { Strategy as JwtStrategy } from 'passport-jwt';
 import { ExtractJwt as ExtractJwt } from 'passport-jwt';
-import { Server } from "socket.io"
 import __dirname, { authorization, passportCall, transport } from "./utils.js"
-import { generateAndSetToken } from "./jwt/token.js"
+import { createHash, isValidPassword } from './utils.js'
 import UserDTO from './dao/DTOs/user.dto.js'
+import compression from 'express-compression'
+import { nanoid } from 'nanoid'
 import session from "express-session";
 import MongoStore from "connect-mongo";
+import { Server } from "socket.io"
 import { createServer } from "http";
+import loggerMiddleware from "./loggerMiddleware.js";
 
-
-// Configuración de .env
+//Configuración de .env
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -35,7 +38,7 @@ const PORT = 8080;
 const users = new UserMongo()
 const products = new ProdMongo()
 
-mongoose.connect(config.MONGO_URL, {
+mongoose.connect(config.mongo_url, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 });
@@ -55,10 +58,6 @@ passport.use(
     })
 )
 
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
-
-
 //Mongo Atlas
 app.use(session({
     store: MongoStore.create({
@@ -71,7 +70,7 @@ app.use(session({
 }))
 
 io.on("connection", (socket) => {
-    console.log(`Cliente conectado ${socket.id}`)
+    console.log(`Cliente conectado`)
 
     socket.emit('conexion-establecida', 'Conexión exitosa con el servidor de Socket');
 
@@ -97,14 +96,19 @@ io.on("connection", (socket) => {
     socket.emit("test", "mensaje desde servidor a cliente, se valida en consola de navegador")
 });
 
+
 // Iniciar el servidor después de todas las configuraciones
 httpServer.listen(PORT, () => {
     console.log(`Servidor Express Puerto: ${PORT}`);
 });;
 
-//Passport//
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 initializePassword()
 app.use(passport.initialize())
+app.use(compression());
+app.use(cookieParser());
+app.use(loggerMiddleware);
 
 // Rutas para manejar productos, carritos y sesiones de usuario
 app.use("/carts", cartsRouter)
@@ -137,32 +141,55 @@ app.post("/api/register", async (req, res) => {
     const { first_name, last_name, email, age, password, rol } = req.body
     const emailToFind = email
     const exists = await users.findEmail({ email: emailToFind })
-    if (exists) return res.status(400).send({ status: "error", error: "Usuario ya existe" })
+    if (exists) {
+        req.logger.warn("Intento de registro con un correo electrónico ya existente: " + emailToFind);
+        return res.send({ status: "error", error: "Usuario ya existe" });
+    }
+
+    const hashedPassword = await createHash(password);
     const newUser = {
         first_name,
         last_name,
         email,
         age,
-        password,
+        password: hashedPassword,
         rol
     };
-    users.addUser(newUser)
-    const token = generateAndSetToken(res, email, password)
-    res.send({ token })
+
+    try {
+        users.addUser(newUser);
+        const token = generateAndSetToken(res, email, password);
+        res.send({ token });
+
+        // Log de éxito
+        req.logger.info("Registro exitoso para el usuario: " + emailToFind);
+    } catch (error) {
+        req.logger.error("Error al intentar registrar al usuario: " + error.message);
+        console.error("Error al intentar registrar al usuario:", error);
+        res.status(500).json({ message: "Error interno del servidor" });
+    }
 })
+
 app.get('/', (req, res) => {
+    req.logger.info("Se inicia página de Inicio de Login");
     res.sendFile('index.html', { root: app.get('views') });
 });
+
 app.get('/register', (req, res) => {
+    req.logger.info("Se inicia página de Registro de Usuarios");
     res.sendFile('register.html', { root: app.get('views') });
 });
+
 app.get('/current', passportCall('jwt', { session: false }), authorization('user'), (req, res) => {
+    req.logger.info("Se inicia página de Usuario");
     authorization('user')(req, res, async () => {
         const prodAll = await products.get();
         res.render('home', { products: prodAll });
     });
 })
+
 app.get('/admin', passportCall('jwt'), authorization('user'), (req, res) => {
+    req.logger.info("Se inicia página de Administrador");
     authorization('user')(req, res, async () => {
         const prodAll = await products.get();
         res.render('admin', { products: prodAll });
@@ -170,5 +197,28 @@ app.get('/admin', passportCall('jwt'), authorization('user'), (req, res) => {
 })
 
 
-export default app;
+function getRandomNumber(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+}
+app.get("/mockingproducts", async (req, res) => {
 
+    const products = [];
+
+    for (let i = 0; i < 50; i++) {
+        const product = {
+            id: nanoid(),
+            description: `Product ${i + 1}`,
+            image: 'https://apple.com/image.jpg',
+            price: getRandomNumber(1, 1000),
+            stock: getRandomNumber(1, 100),
+            category: `Category ${i % 5 + 1}`,
+            availability: 'in_stock'
+        };
+
+        products.push(product);
+    }
+
+    res.send(products);
+})
+
+export default app;

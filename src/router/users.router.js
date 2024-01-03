@@ -8,6 +8,7 @@ const router = Router()
 const usersMongo = new Users()
 
 router.get("/", async (req, res) => {
+    req.logger.info('Se cargan usuarios');
     let result = await usersMongo.get()
     res.send({ status: "success", payload: result })
 })
@@ -18,7 +19,11 @@ router.post("/", async (req, res) => {
     let user = new UserDTO({ first_name, last_name, email, age, password, rol })
     console.log(user)
     let result = await userService.createUser(user)
-    console.log(result)
+    if(result){
+        req.logger.info('Se crea Usuario correctamente');
+    }else{
+        req.logger.error("Error al crear Usuario");
+    }
 })
 
 

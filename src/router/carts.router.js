@@ -14,11 +14,21 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   let { products } = req.body
-
-  let cart = new CartDTO({ products })
-  console.log(cart)
-  let result = await cartService.createCart(cart)
-  console.log(result)
+    const correo = req.body.correo;
+    let rolUser = userService.getRolUser(products.owner)
+    if(rolUser == 'premium' && correo == products.owner)
+    {
+        console.log("Un usuario premium NO puede agregar a su carrito un producto que le pertenece")
+    }else{
+        let cart = new CartDTO({ products })
+        let result = await cartService.createCart(cart)
+    }
+    
+    if(result){
+        req.logger.info('Se crea carrito correctamente correctamente');
+    }else{
+        req.logger.error("Error al crear carritos");
+    }
 })
 
 router.post("/:cid/purchase", async (req, res) => {
