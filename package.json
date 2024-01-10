@@ -23,7 +23,7 @@
         "express-session": "^1.17.3",
         "handlebars": "^4.7.8",
         "jsonwebtoken": "^9.0.2",
-        "mongoose": "^7.6.5",
+        "mongoose": "^7.6.7",
         "nanoid": "^4.0.2",
         "nodemailer": "^6.9.7",
         "passport": "^0.6.0",
