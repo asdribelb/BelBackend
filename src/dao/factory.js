@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 import config from '../config/config.js'
-export let Carts
-export let Products
-export let Users
-export let Tickets
+export let Carts = Object;
+export let Products  = Object
+export let Users  = Object;
+export let Tickets  = Object;
 switch (config.PERSISTENCE) {
     case "MONGO":
         const connection = mongoose.connect(config.mongo_url)
