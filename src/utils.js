@@ -2,7 +2,6 @@ import path from "path"
 import { fileURLToPath } from "url"
 import passport from "passport"
 import nodemailer from 'nodemailer'
-import bcrypt from 'bcrypt'
 
 export const createHash = async password => {
     const saltRounds = 10

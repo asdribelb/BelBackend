@@ -1,5 +1,4 @@
 import { Router } from "express"
-
 import CartDTO from "../dao/DTOs/cart.dto.js";
 import TicketDTO from "../dao/DTOs/ticket.dto.js";
 import { ticketService, cartService } from "../repositories/index.js";
@@ -15,25 +14,32 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   let { products } = req.body
-
-  let cart = new CartDTO({ products })
-  let result = await cartService.createCart(cart)
-  if(result){
-      req.logger.info('Se crea carrito correctamente correctamente');
-  }else{
-      req.logger.error("Error al crear carritos");
-  }
+    const correo = req.body.correo;
+    let rolUser = userService.getRolUser(products.owner)
+    if(rolUser == 'premium' && correo == products.owner)
+    {
+        console.log("Un usuario premium NO puede agregar a su carrito un producto que le pertenece")
+    }else{
+        let cart = new CartDTO({ products })
+        let result = await cartService.createCart(cart)
+    }
+    
+    if(result){
+        req.logger.info('Se crea carrito correctamente correctamente');
+    }else{
+        req.logger.error("Error al crear carritos");
+    }
 })
 
 router.post("/:cid/purchase", async (req, res) => {
   try {
       let id_cart = req.params.cid;
+  
       const productos = req.body.productos;
       const correo = req.body.correo;
       console.log(correo)
       let cart = cartService.validateCart(id_cart)
       if (!cart) {
-        req.logger.error("No se encontró el carrito con el ID proporcionado");
           return { error: "No se encontró el carrito con el ID proporcionado" };
       }
       let validaStock = cartService.validateStock({productos})
@@ -43,12 +49,11 @@ router.post("/:cid/purchase", async (req, res) => {
           const ticketFormat = new TicketDTO({amount:totalAmount, purchaser:correo});
           const result = await ticketService.createTicket(ticketFormat);
       } else {
-        req.logger.error("No hay suficiente stock para realizar la compra");
+          console.log("No hay suficiente stock para realizar la compra");
       }
   } catch (error) {
-    req.logger.error("Error al procesar la compra:" + error.message);
-    console.error("Error al procesar la compra:", error);
-    return res.status(500).json({ error: "Error interno al procesar la compra" });
+      console.error("Error al procesar la compra:", error);
+      return res.status(500).json({ error: "Error interno al procesar la compra" });
   }
 })
 
