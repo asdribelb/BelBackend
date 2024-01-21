@@ -28,6 +28,8 @@ import MongoStore from "connect-mongo";
 import { Server } from "socket.io"
 import { createServer } from "http";
 import loggerMiddleware from "./loggerMiddleware.js";
+import swaggerJSDoc from 'swagger-jsdoc'
+import swaggerUIExpress from 'swagger-ui-express'
 
 //Configuración de .env
 import dotenv from 'dotenv';
@@ -103,6 +105,23 @@ app.set("views", path.resolve(__dirname + "/views"))
 
 //static
 app.use(express.static(__dirname + "/public"));
+
+//Documentacion API
+const swaggerOptions = {
+    definition:{
+        openapi:'3.0.1',
+        info:{
+            title: 'Documentacion_API',
+            description:'Documentación cpn Swagger'
+        }
+    },
+    apis:[`src/docs/users.yaml`,
+          `src/docs/products.yaml`,
+          `src/docs/tickets.yaml`,
+          `src/docs/carts.yaml`]
+}
+const specs = swaggerJSDoc(swaggerOptions)
+app.use("/apidocs", swaggerUIExpress.serve, swaggerUIExpress.setup(specs))
 
 
 io.on("connection", (socket) => {
