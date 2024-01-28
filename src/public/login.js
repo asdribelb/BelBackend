@@ -22,9 +22,13 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
           //Acceso Usuario
             window.location.href = '/current';
         }
+        else if (data.token && data.user.rol === 'premium') {
+          //Acceso Usuario
+            window.location.href = `/current-plus?token=${encodeURIComponent(data.token)}`;
+        }
       } else {
         console.error("Error en el inicio de sesión");
-      }
+      } 
 })
 
 document.addEventListener("DOMContentLoaded", function () {

@@ -12,6 +12,8 @@ import usersRouter from './router/users.router.js'
 import ticketsRouter from './router/tickets.router.js'
 import UserMongo from "./dao/mongo/users.mongo.js"
 import ProdMongo from "./dao/mongo/products.mongo.js"
+import CartMongo from "./dao/mongo/carts.mongo.js"
+import TicketMongo from "./dao/mongo/tickets.mongo.js"
 import { Strategy as JwtStrategy } from 'passport-jwt';
 import { ExtractJwt as ExtractJwt } from 'passport-jwt';
 import __dirname, { authorization, passportCall, transport } from "./utils.js"
@@ -30,6 +32,7 @@ import { createServer } from "http";
 import loggerMiddleware from "./loggerMiddleware.js";
 import swaggerJSDoc from 'swagger-jsdoc'
 import swaggerUIExpress from 'swagger-ui-express'
+import bodyParser from 'body-parser'
 
 //Configuración de .env
 import dotenv from 'dotenv';
@@ -42,6 +45,8 @@ const PORT = 8080;
 
 const users = new UserMongo()
 const products = new ProdMongo()
+const carts = new CartMongo()
+const tickets = new TicketMongo()
 
 try {
     await mongoose.connect(config.mongo_url, {
@@ -88,6 +93,8 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 initializePassword()
 app.use(passport.initialize())
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(compression());
 app.use(cookieParser());
 app.use(loggerMiddleware);
@@ -112,7 +119,7 @@ const swaggerOptions = {
         openapi:'3.0.1',
         info:{
             title: 'Documentacion_API',
-            description:'Documentación cpn Swagger'
+            description:'Documentación con Swagger'
         }
     },
     apis:[`src/docs/users.yaml`,
@@ -124,6 +131,7 @@ const specs = swaggerJSDoc(swaggerOptions)
 app.use("/apidocs", swaggerUIExpress.serve, swaggerUIExpress.setup(specs))
 
 
+//Socket 
 io.on("connection", (socket) => {
     console.log(`Cliente conectado`)
 
@@ -164,7 +172,7 @@ io.on("connection", (socket) => {
         }
     });
     socket.on("notMatchPass", () => {
-        ior.emit("warning", "Las contraseñas son distintas, reintente");
+        io.emit("warning", "Las contraseñas son distintas, reintente");
     });
 
     socket.on("validActualPass", async ({ password1, password2, email }) => {
@@ -206,18 +214,37 @@ io.on("connection", (socket) => {
 });
 
 //Vistas
-
 app.post("/login", async (req, res) => {
     const { email, password } = req.body;
     const emailToFind = email;
     const user = await users.findEmail({ email: emailToFind });
+    
     if (!user || user.password !== password) {
         return res.status(401).json({ message: "Error de autenticación" });
     }
+
+    try {
+        const passwordMatch = isValidPassword(user, password);
+
+        if (!passwordMatch) {
+            req.logger.error("Error de autenticación: Contraseña incorrecta");
+            return res.status(401).json({ message: "Error de autenticación" });
+        }
+
     const token = generateAndSetToken(res, email, password);
     const userDTO = new UserDTO(user);
-    const prodAll = await products.get()
+    const prodAll = await products.get();
+    users.updateLastConnection(email) 
     res.json({ token, user: userDTO, prodAll });
+
+       // Log de éxito
+       req.logger.info("Inicio de sesión exitoso para el usuario: " + emailToFind);
+    } catch (error) {
+        // Manejo de errores relacionados con bcrypt
+        req.logger.error("Error al comparar contraseñas: " + error.message);
+        console.error("Error al comparar contraseñas:", error);
+        return res.status(500).json({ message: "Error interno del servidor" });
+    }
 });
 
 app.post("/api/register", async (req, res) => {
@@ -236,6 +263,7 @@ app.post("/api/register", async (req, res) => {
         email,
         age,
         password: hashedPassword,
+        id_cart: resultNewCart._id.toString(),
         rol
     };
 
@@ -258,16 +286,37 @@ app.get('/', (req, res) => {
     res.sendFile('index.html', { root: app.get('views') });
 });
 
+app.get('/logout', (req, res) => {
+    req.logger.info("Se Cierra Sesión");
+    let email = req.query.email
+    users.updateLastConnection(email)
+    res.redirect('/');
+});
+
+
 app.get('/register', (req, res) => {
     req.logger.info("Se inicia página de Registro de Usuarios");
     res.sendFile('register.html', { root: app.get('views') });
 });
 
-app.get('/current', passportCall('jwt', { session: false }), authorization('user'), (req, res) => {
+app.get('/current',passportCall('jwt', { session: false }), authorization('user'),(req,res) =>{
     req.logger.info("Se inicia página de Usuario");
-    authorization('user')(req, res, async () => {
+    authorization('user')(req, res,async() => { 
+        const userData = {
+            email: req.user.email,
+        };
+        const idCartUser = await users.getIdCartByEmailUser(req.user.email)
         const prodAll = await products.get();
-        res.render('home', { products: prodAll });
+        res.render('home', { products: prodAll, user: userData, cartId : idCartUser });
+    });
+})
+app.get('/current-plus',passportCall('jwt', { session: false }), authorization('user'),(req,res) =>{
+    req.logger.info("Se inicia página de Usuario Plus (Premium)");
+    authorization('user')(req, res,async() => {  
+        const { token} = req.query;
+        const emailToken = getEmailFromTokenLogin(token) 
+        const prodAll = await products.get();
+        res.render('home-plus', { products: prodAll, email: emailToken });
     });
 })
 
@@ -279,8 +328,21 @@ app.get('/admin', passportCall('jwt'), authorization('user'), (req, res) => {
     });
 })
 
-//Cambio de Password
+    app.get('/admin/users',passportCall('jwt'), authorization('user'),(req,res) =>{
+        req.logger.info("Se inicia página de Administrador Usuario");
+        authorization('user')(req, res,async() => {    
+            const userAll = await users.get();
+            const simplifiedUserData = userAll.map(user => ({
+                _id: user._id.toString(),
+                first_name: user.first_name,
+                email: user.email,
+                rol: user.rol,
+            }));
+            res.render('admin-user', { users: simplifiedUserData  });
+        });
+})
 
+//Cambio de Password
 app.post('/forgot-password', async (req, res) => {
     const { email } = req.body;
     const emailToFind = email;
@@ -327,7 +389,6 @@ app.get('/reset-password', async (req, res) => {
 });
 
 //Mocking
-
 function getRandomNumber(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
 }

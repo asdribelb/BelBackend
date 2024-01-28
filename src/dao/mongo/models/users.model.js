@@ -8,7 +8,16 @@ const userSchema = new mongoose.Schema({
     email: String,
     age: Number,
     password: String,
-    rol: String
+    rol: String,
+    id_cart: String,
+    documents:
+    [
+        {
+          name: { type: String},
+          reference: { type: String},
+        }
+    ],
+    last_connection: Date
 })
 
 const usersModel = mongoose.model(usersCollection, userSchema)

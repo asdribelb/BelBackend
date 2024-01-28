@@ -42,8 +42,8 @@ document.getElementById('prod-form').addEventListener('submit', (e) => {
     const eliminarProducto = eliminarProductoCheckbox.checked;
 
     if (eliminarProducto) {
-        // Enviar mensaje si el checkbox está seleccionado
-        socket.emit("delProdPremium", { id: id, owner: owner, email: email });
+       
+        io.emit("delProdPremium", { id: id, owner: owner, email: email });
     }else{
         const newProduct = {
             description: description,
@@ -71,11 +71,7 @@ socket.on("success", (data) => {
         title: data,
         text: `A continuación verás la lista actualizada`,
         confirmButtonText: 'Aceptar', // Cambia el texto del botón Aceptar
-    }).then((result) => {
-        if (result.isConfirmed) {
-            location.reload(); // Recarga la página cuando se hace clic en Aceptar
-        }
-    });
+    })
 });
 
 socket.on("errorDelPremium", (data) => {

@@ -19,30 +19,22 @@ socket.on("warning", (data) => {
     Swal.fire({
         icon: 'warning',
         title: data,
-        confirmButtonText: 'Aceptar', // Cambia el texto del botón Aceptar
-    }).then((result) => {
-        if (result.isConfirmed) {
-            location.reload(); // Recarga la página cuando se hace clic en Aceptar
-        }
-    });
+        confirmButtonText: 'Aceptar', 
+    })
 });
 
 socket.on("samePass", (data) => {
     Swal.fire({
         icon: 'warning',
         title: data,
-        confirmButtonText: 'Aceptar', // Cambia el texto del botón Aceptar
-    }).then((result) => {
-        if (result.isConfirmed) {
-            location.reload();
-        }
-    });
+        confirmButtonText: 'Aceptar', 
+    })
 });
 socket.on("passChange", (data) => {
     Swal.fire({
         icon: 'success',
         title: data,
-        confirmButtonText: 'Aceptar', // Cambia el texto del botón Aceptar
+        confirmButtonText: 'Aceptar',
     }).then((result) => {
         if (result.isConfirmed) {
             window.location.href = `/`;
@@ -53,10 +45,6 @@ socket.on("errorPassChange", (data) => {
     Swal.fire({
         icon: 'error',
         title: data,
-        confirmButtonText: 'Aceptar', // Cambia el texto del botón Aceptar
-    }).then((result) => {
-        if (result.isConfirmed) {
-            window.location.href = `/`;
-        }
-    });
+        confirmButtonText: 'Aceptar',
+    })
 });

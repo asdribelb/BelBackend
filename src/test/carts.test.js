@@ -33,8 +33,8 @@ describe('Testing Cart DAO Mocha/Chai/SuperTest', () => {
         let mockCart = {
             products: [
                 {
-                    productId: '6521c5ded7b1040b9f43c270',
-                    quantity: 77
+                    productId: '652dee05bacfec5d59647bcf',
+                    quantity: 10
                 }
             ]
         }
