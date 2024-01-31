@@ -1,10 +1,11 @@
 import { Router } from "express";
 import ProductDTO from "../dao/DTOs/product.dto.js";
-import { productService } from "../repositories/index.js";
+import { productService, userService } from "../repositories/index.js";
 import Products from "../dao/mongo/products.mongo.js"
 import CustomError from "../services/errors/CustomError.js";
 import EErrors from "../services/errors/enum.js";
 import { generateProductErrorInfo } from "../services/errors/info.js";
+import {transport} from "../utils.js"
 
 const router = Router()
 

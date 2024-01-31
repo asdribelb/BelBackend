@@ -16,8 +16,7 @@ import CartMongo from "./dao/mongo/carts.mongo.js"
 import TicketMongo from "./dao/mongo/tickets.mongo.js"
 import { Strategy as JwtStrategy } from 'passport-jwt';
 import { ExtractJwt as ExtractJwt } from 'passport-jwt';
-import __dirname, { authorization, passportCall, transport } from "./utils.js"
-import { createHash, isValidPassword } from './utils.js'
+import __dirname, { authorization, passportCall, transport, createHash, isValidPassword } from "./utils.js"
 import {
     generateAndSetToken, generateAndSetTokenEmail,
     validateTokenResetPass, getEmailFromToken, getEmailFromTokenLogin
@@ -41,7 +40,7 @@ dotenv.config();
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer);
-const PORT = 8080;
+const PORT = process.env.PORT || 8080
 
 const users = new UserMongo()
 const products = new ProdMongo()
@@ -219,9 +218,10 @@ app.post("/login", async (req, res) => {
     const emailToFind = email;
     const user = await users.findEmail({ email: emailToFind });
     
-    if (!user || user.password !== password) {
+    if (!user) {
+        req.logger.error("Error de autenticación: Usuario no encontrado");
         return res.status(401).json({ message: "Error de autenticación" });
-    }
+      }
 
     try {
         const passwordMatch = isValidPassword(user, password);
@@ -257,6 +257,7 @@ app.post("/api/register", async (req, res) => {
     }
 
     const hashedPassword = await createHash(password);
+    let resultNewCart = await carts.addCart()
     const newUser = {
         first_name,
         last_name,
@@ -363,12 +364,12 @@ app.post('/forgot-password', async (req, res) => {
         from: '<asdribelb@gmail.com>',
         to: email,
         subject: 'Restablecer contraseña',
-        html: `Haz clic en el siguiente enlace para restablecer tu contraseña: <a href="${resetLink}">Restablecer contraseña</a>`,
+        html: `Haz click en el siguiente enlace para restablecer tu contraseña: <a href="${resetLink}">Restablecer contraseña</a>`,
         attachments: []
     })
     if (result) {
         req.logger.info("Se envia correo para reestablecer contraseña a correo" + emailToFind);
-        res.json("Correo para reestablecer contraseña fue enviado correctamente a " + email);
+        res.json("Correo para restablecer contraseña fue enviado correctamente a " + email);
     }
     else {
         req.logger.error("Error al enviar correo para reestablecer contraseña");

@@ -15,4 +15,15 @@ export default class UserRepository {
         let result = await this.dao.addUser(userToInsert)
         return result
     }
+    getRolUser = async (email) => {
+        let result = await this.dao.getUserRoleByEmail(email)
+        return result
+    }
+    updUserRol = async ({uid, rol}) => {
+        console.log(uid)
+        console.log(rol)
+        let result = await this.dao.updateUserRoleById({uid, rol})
+        return result
+    }
+
 }

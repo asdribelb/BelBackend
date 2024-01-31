@@ -1,5 +1,8 @@
 <h1>ESTE ES EL HOME USUARIO</h1>
-<button id="logoutButton">Cerrar Sesión</button>
+<h3>Bienvenido! {{user.first_name}}</h3>
+<h4>Sesión iniciada de usuario <p id="correo">{{user.email}}</p></h4>
+<button id="logoutButton">Cerrar Sesión</button> <br><br>
+<a href="/carts/{{cartId}}?email={{user.email}}">Ver Carrito</a> <br><br>
 <div class="container">
     <div class="infoProd">
         <h1>Lista de Productos</h1>
