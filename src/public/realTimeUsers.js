@@ -37,5 +37,8 @@ socket.on("success", (data) => {
         title: data,
         text: `A continuación verás la lista actualizada`,
         confirmButtonText: 'Aceptar',
-    })
-});
+    })}).then((result) => {
+        if (result.isConfirmed) {
+            location.reload(); // Recarga la página cuando se hace clic en Aceptar
+        }
+    });

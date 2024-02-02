@@ -114,17 +114,17 @@ app.use(express.static(__dirname + "/public"));
 
 //Documentacion API
 const swaggerOptions = {
-    definition:{
-        openapi:'3.0.1',
-        info:{
+    definition: {
+        openapi: '3.0.1',
+        info: {
             title: 'Documentacion_API',
-            description:'Documentación con Swagger'
+            description: 'Documentación con Swagger'
         }
     },
-    apis:[`src/docs/users.yaml`,
-          `src/docs/products.yaml`,
-          `src/docs/tickets.yaml`,
-          `src/docs/carts.yaml`]
+    apis: [`src/docs/users.yaml`,
+        `src/docs/products.yaml`,
+        `src/docs/tickets.yaml`,
+        `src/docs/carts.yaml`]
 }
 const specs = swaggerJSDoc(swaggerOptions)
 app.use("/apidocs", swaggerUIExpress.serve, swaggerUIExpress.setup(specs))
@@ -140,6 +140,19 @@ io.on("connection", (socket) => {
         console.log('Cliente desconectado');
     });
 
+    socket.on("delUser", (id) => {
+        users.deleteUser(id)
+        socketServer.emit("success", "Usuario Eliminado Correctamente");
+    });
+    socket.on("updRolUser", ({id, newRol}) => {
+        users.updateUserRoleById({uid: id, rol: newRol})
+        socketServer.emit("success", "Usuario Actualizado Correctamente");
+    });
+    socket.on("newProdInCart", async ({idProd, quantity,email}) => {
+        let idCart = await users.getIdCartByEmailUser(email)
+        carts.addToCart(idCart, idProd, quantity)
+        socketServer.emit("success", "Producto Agregado Correctamente");
+    });
 
     socket.on("newProd", (newProduct) => {
         let validUserPremium = users.getUserRoleByEmail(newProduct.owner)
@@ -217,11 +230,11 @@ app.post("/login", async (req, res) => {
     const { email, password } = req.body;
     const emailToFind = email;
     const user = await users.findEmail({ email: emailToFind });
-    
+
     if (!user) {
         req.logger.error("Error de autenticación: Usuario no encontrado");
         return res.status(401).json({ message: "Error de autenticación" });
-      }
+    }
 
     try {
         const passwordMatch = isValidPassword(user, password);
@@ -231,14 +244,14 @@ app.post("/login", async (req, res) => {
             return res.status(401).json({ message: "Error de autenticación" });
         }
 
-    const token = generateAndSetToken(res, email, password);
-    const userDTO = new UserDTO(user);
-    const prodAll = await products.get();
-    users.updateLastConnection(email) 
-    res.json({ token, user: userDTO, prodAll });
+        const token = generateAndSetToken(res, email, password);
+        const userDTO = new UserDTO(user);
+        const prodAll = await products.get();
+        users.updateLastConnection(email)
+        res.json({ token, user: userDTO, prodAll });
 
-       // Log de éxito
-       req.logger.info("Inicio de sesión exitoso para el usuario: " + emailToFind);
+        // Log de éxito
+        req.logger.info("Inicio de sesión exitoso para el usuario: " + emailToFind);
     } catch (error) {
         // Manejo de errores relacionados con bcrypt
         req.logger.error("Error al comparar contraseñas: " + error.message);
@@ -300,22 +313,29 @@ app.get('/register', (req, res) => {
     res.sendFile('register.html', { root: app.get('views') });
 });
 
-app.get('/current',passportCall('jwt', { session: false }), authorization('user'),(req,res) =>{
-    req.logger.info("Se inicia página de Usuario");
-    authorization('user')(req, res,async() => { 
+app.get('/current', passportCall('jwt', { session: false }), authorization('user'), async (req, res) => {
+    try {
+        req.logger.info("Se inicia página de Usuario");
         const userData = {
             email: req.user.email,
         };
-        const idCartUser = await users.getIdCartByEmailUser(req.user.email)
+
+        const idCartUser = await users.getIdCartByEmailUser(req.user.email);
         const prodAll = await products.get();
-        res.render('home', { products: prodAll, user: userData, cartId : idCartUser });
-    });
-})
-app.get('/current-plus',passportCall('jwt', { session: false }), authorization('user'),(req,res) =>{
+
+        res.render('home', { products: prodAll, user: userData, cartId: idCartUser });
+    } catch (error) {
+        // Manejar errores aquí
+        console.error('Error en la ruta /current:', error);
+        res.status(500).send('Error interno del servidor');
+    }
+});
+
+app.get('/current-plus', passportCall('jwt', { session: false }), authorization('user'), (req, res) => {
     req.logger.info("Se inicia página de Usuario Plus (Premium)");
-    authorization('user')(req, res,async() => {  
-        const { token} = req.query;
-        const emailToken = getEmailFromTokenLogin(token) 
+    authorization('user')(req, res, async () => {
+        const { token } = req.query;
+        const emailToken = getEmailFromTokenLogin(token)
         const prodAll = await products.get();
         res.render('home-plus', { products: prodAll, email: emailToken });
     });
@@ -329,18 +349,18 @@ app.get('/admin', passportCall('jwt'), authorization('user'), (req, res) => {
     });
 })
 
-    app.get('/admin/users',passportCall('jwt'), authorization('user'),(req,res) =>{
-        req.logger.info("Se inicia página de Administrador Usuario");
-        authorization('user')(req, res,async() => {    
-            const userAll = await users.get();
-            const simplifiedUserData = userAll.map(user => ({
-                _id: user._id.toString(),
-                first_name: user.first_name,
-                email: user.email,
-                rol: user.rol,
-            }));
-            res.render('admin-user', { users: simplifiedUserData  });
-        });
+app.get('/admin/users', passportCall('jwt'), authorization('user'), (req, res) => {
+    req.logger.info("Se inicia página de Administrador Usuario");
+    authorization('user')(req, res, async () => {
+        const userAll = await users.get();
+        const simplifiedUserData = userAll.map(user => ({
+            _id: user._id.toString(),
+            first_name: user.first_name,
+            email: user.email,
+            rol: user.rol,
+        }));
+        res.render('admin-user', { users: simplifiedUserData });
+    });
 })
 
 //Cambio de Password

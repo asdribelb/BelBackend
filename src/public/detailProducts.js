@@ -17,5 +17,9 @@ socket.on("success", (data) => {
         title: data,
         text: `Correo enviado`,
         confirmButtonText: 'Aceptar',
-    })
+    })}).then((result) => {
+        if (result.isConfirmed) {
+            location.reload(); // Recarga la página cuando se hace clic en Aceptar
+        }
     });
+    

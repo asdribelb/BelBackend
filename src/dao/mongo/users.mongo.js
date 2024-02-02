@@ -146,6 +146,105 @@ export default class Users {
             return 'Error al obtener el usuario';
         }
     };
+    getIdCartByEmailUser = async (email) => {
+      try {
+        // Buscar el usuario por correo electrónico en tu modelo de usuario
+        const user = await usersModel.findOne({ email });
+    
+        // Verificar si se encontró un usuario y si tiene un rol premium
+        if (user && user.id_cart) {
+          return user.id_cart;
+        } else {
+            return null; // O cualquier valor que indique que no se encontró un carrito
+        }
+      } catch (error) {
+        console.error('Error al obtener el rol del usuario:', error);
+        return 'Error al obtener el rol del usuario';
+      }
+    };
+
+    updatePassword = async (email, newPassword) => {
+      try {
+          const updatedUser = await usersModel.findOneAndUpdate(
+              { email: email },
+              { $set: { password: newPassword } },
+              { new: true } 
+          );
+  
+          if (updatedUser) {
+              return updatedUser;
+          } else {
+              console.error('Usuario no encontrado');
+          }
+      } catch (error) {
+          console.error('Error al actualizar la contraseña:', error);
+          return 'Error al actualizar la contraseña';
+      }
+  };
+  updateLastConnection = async (email) => {
+    try {
+      const updatedUser = await usersModel.findOneAndUpdate(
+        { email: email },
+        { $set: { last_connection: new Date() } },
+        { new: true }
+      );
+  
+      if (updatedUser) {
+        return updatedUser;
+      } else {
+        console.error('Usuario no encontrado');
+        return null;
+      }
+    } catch (error) {
+      console.error('Error al actualizar la última conexión:', error);
+      throw error;
+    }
+  };
+  updateIdCartUser = async ({email, newIdCart}) => {
+    try {
+      const updatedUser = await usersModel.findOneAndUpdate(
+        { email: email },
+        { $set: { id_cart: newIdCart } },
+        { new: true }
+      );
+  
+      if (updatedUser) {
+        return updatedUser;
+      } else {
+        console.error('Usuario no encontrado');
+        return null;
+      }
+    } catch (error) {
+      console.error('Error al actualizar el id_Cart del usuario:', error);
+      throw error;
+    }
+  };
+    findJWT = async (filterFunction) => {
+        try
+        {
+            const user = await usersModel.find(filterFunction)
+            return user
+        }catch(error){
+            console.error('Error al obtener filtro JWT:', error);
+            return 'Error al obtener filtro JWT';
+        }      
+    }
+    getPasswordByEmail = async (email) => {
+        try {
+          const user = await usersModel.findOne({ email: email }).lean();
+      
+          if (user) {
+            const pass = user.password;
+            return pass; 
+          } else {
+            return null; 
+          }
+        } catch (error) {
+          console.error('Error al obtener el usuario:', error);
+          return 'Error al obtener el usuario';
+        }
+      };
+
     updateUserRoleById = async ({ uid, rol }) => {
         try {
             const updatedUser = await usersModel.findByIdAndUpdate(
